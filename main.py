@@ -114,7 +114,12 @@ def predict_rub_salary_for_superJob(vacancy):
 def make_table(languages_information, title):
     table_payload = [['Язык программирования', 'Вакансий найдено', 'Вакансий обработано', 'Средняя зарплата']]
     for language_information in languages_information:
-        table_row = [language_information['language'], language_information['vacancies_found'], language_information['vacancies_processed'], language_information['average_salary']]
+        table_row = [
+            language_information['language'],
+            language_information['vacancies_found'],
+            language_information['vacancies_processed'],
+            language_information['average_salary']
+        ]
         table_payload.append(table_row)
     table = AsciiTable(table_payload, title)
     return table
