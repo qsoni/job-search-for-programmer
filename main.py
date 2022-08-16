@@ -1,6 +1,7 @@
 import requests
-from pprint import pprint
 from terminaltables import AsciiTable
+from dotenv import load_dotenv
+import os
 
 
 def get_vacancy_hh(language):
@@ -55,6 +56,7 @@ def predict_rub_salary_for_hh(salary):
         elif salary['to']:
              return salary['to']*0.8
 
+
 def get_vacancy_sj(language):
     vacancies_found = 0
     total_salary = 0
@@ -97,6 +99,7 @@ def get_vacancy_sj(language):
     }
     return vacancy_params
 
+
 def predict_rub_salary_for_superJob(vacancy):
     if vacancy['currency'] == 'rub':
         if vacancy['payment_from'] and vacancy['payment_to']:
@@ -116,9 +119,9 @@ def make_table(languages_information, title):
     return table
 
 
-
 if __name__ == '__main__':
-
+    load_dotenv()
+    sj_token = os.getenv('SJ_TOKEN')
     languages = [
         'Python',
         'Java',
