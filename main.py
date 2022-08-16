@@ -27,9 +27,9 @@ def get_vacancy_hh(language):
         response.raise_for_status()
         vacancys = response.json()
         if vacancys.get('items'):
-            vacancies_found = response.json()['found']
+            vacancies_found = vacancys['found']
             pages = vacancys['pages']
-            for vacancy in response.json()['items']:
+            for vacancy in vacancys['items']:
                 if vacancy['salary']:
                     predicted_salary = predict_rub_salary_for_hh(vacancy['salary'])
                     if predicted_salary:
@@ -54,16 +54,16 @@ def predict_rub_salary_for_hh(salary):
         elif salary['from']:
             return salary['from']*1.2
         elif salary['to']:
-             return salary['to']*0.8
+            return salary['to']*0.8
 
 
-def get_vacancy_sj(language):
+def get_vacancy_sj(language, sj_token):
     vacancies_found = 0
     total_salary = 0
     vacancies_processed = 0
     average_salary = 0
     headers = {
-        'X-Api-App-Id': 'v3.r.136632588.6894ef6cebc918df80f1c71bc9a1cd48685486df.7539fdd22499b9e67da3b00b44bf2e0653433824',
+        'X-Api-App-Id': sj_token,
         'Content-Type': 'application/x-www-form-urlencoded'
     }
     page = 1
@@ -139,7 +139,7 @@ if __name__ == '__main__':
 
     for language in languages:
         hh_languages.append(get_vacancy_hh(language))
-        sj_languages.append(get_vacancy_sj(language))
+        sj_languages.append(get_vacancy_sj(language, sj_token))
     sj_table = make_table(sj_languages, 'SuperJob Moscow')
     hh_table = make_table(hh_languages, 'HeadHunter Moscow')
     print(sj_table.table)
