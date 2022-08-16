@@ -134,7 +134,6 @@ if __name__ == '__main__':
         'Javascript',
         'C++',
         'C#',
-        'CSS',
         'PHP',
         'Ruby',
         'C',
