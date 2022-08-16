@@ -1,10 +1,12 @@
-import requests
-from terminaltables import AsciiTable
-from dotenv import load_dotenv
+import logging
 import os
 
+import requests
+from dotenv import load_dotenv
+from terminaltables import AsciiTable
 
-def get_vacancy_hh(language):
+
+def process_vacancy_hh(language):
     vacancies_found = 0
     total_salary = 0
     vacancies_processed = 0
@@ -18,7 +20,7 @@ def get_vacancy_hh(language):
         params = {
             'page': page,
             'area': '1',
-            'text': f'Программист{language}',
+            'text': f'Программист {language}',
             'period': '30'
         }
         page = page + 1
@@ -57,7 +59,7 @@ def predict_rub_salary_for_hh(salary):
             return salary['to']*0.8
 
 
-def get_vacancy_sj(language, sj_token):
+def process_vacancy_sj(language, sj_token):
     vacancies_found = 0
     total_salary = 0
     vacancies_processed = 0
@@ -79,7 +81,6 @@ def get_vacancy_sj(language, sj_token):
         if response.json()['objects']:
             vacancies_found = response.json()['total']
             for vacancy in response.json()['objects']:
-                predict_rub_salary_for_superJob(vacancy)
                 if vacancy:
                     predicted_salary = predict_rub_salary_for_superJob(vacancy)
                     if predicted_salary:
@@ -134,13 +135,16 @@ if __name__ == '__main__':
         'C',
         'Go'
     ]
-    sj_languages = []
-    hh_languages = []
+    sj_salarys = []
+    hh_salarys = []
 
     for language in languages:
-        hh_languages.append(get_vacancy_hh(language))
-        sj_languages.append(get_vacancy_sj(language, sj_token))
-    sj_table = make_table(sj_languages, 'SuperJob Moscow')
-    hh_table = make_table(hh_languages, 'HeadHunter Moscow')
+        try:
+            hh_salarys.append(process_vacancy_hh(language))
+            sj_salarys.append(process_vacancy_sj(language, sj_token))
+        except requests.exceptions.HTTPError as error:
+            logging.warning('код сломался, иди чини')
+    sj_table = make_table(sj_salarys, 'SuperJob Moscow')
+    hh_table = make_table(hh_salarys, 'HeadHunter Moscow')
     print(sj_table.table)
     print(hh_table.table)
