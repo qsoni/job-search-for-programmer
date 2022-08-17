@@ -32,14 +32,11 @@ def process_vacancy_hh(language, period, area):
             vacancies_found = vacancis['found']
             pages = vacancis['pages']
             for vacancy in vacancis['items']:
-                if vacancy['salary']:
-                    predicted_salary = predict_rub_salary_for_hh(vacancy['salary'])
-                    if predicted_salary:
-                        total_salary += predicted_salary
-                        vacancies_processed += 1
-                        average_salary = int(total_salary/vacancies_processed)
-        else:
-            break
+                predicted_salary = predict_rub_salary_for_hh(vacancy.get('salary'))
+                if predicted_salary:
+                    total_salary += predicted_salary
+                    vacancies_processed += 1
+                    average_salary = int(total_salary/vacancies_processed)
     vacancy_params = {
         'language': language,
         'vacancies_found': vacancies_found,
@@ -50,7 +47,7 @@ def process_vacancy_hh(language, period, area):
 
 
 def predict_rub_salary_for_hh(salary):
-    if salary['currency'] == 'RUR':
+    if salary.get('currency') == 'RUR':
         if salary['from'] and salary['to']:
             return (salary['from'] + salary['to'])/2
         elif salary['from']:
@@ -81,12 +78,11 @@ def process_vacancy_sj(language, sj_token, town):
         if response.json()['objects']:
             vacancies_found = response.json()['total']
             for vacancy in response.json()['objects']:
-                if vacancy:
-                    predicted_salary = predict_rub_salary_for_superJob(vacancy)
-                    if predicted_salary:
-                        total_salary += predicted_salary
-                        vacancies_processed += 1
-                        average_salary = int(total_salary / vacancies_processed)
+                predicted_salary = predict_rub_salary_for_superjob(vacancy)
+                if predicted_salary:
+                    total_salary += predicted_salary
+                    vacancies_processed += 1
+                    average_salary = int(total_salary / vacancies_processed)
             page = page + 1
             if not response.json()['more']:
                 break
@@ -101,8 +97,8 @@ def process_vacancy_sj(language, sj_token, town):
     return vacancy_params
 
 
-def predict_rub_salary_for_superJob(vacancy):
-    if vacancy['currency'] == 'rub':
+def predict_rub_salary_for_superjob(vacancy):
+    if vacancy.get('currency') == 'rub':
         if vacancy['payment_from'] and vacancy['payment_to']:
             return vacancy['payment_from'] + vacancy['payment_to']/2
         elif vacancy['payment_from']:
