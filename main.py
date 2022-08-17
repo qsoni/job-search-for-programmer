@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from terminaltables import AsciiTable
 
 
-def process_vacancy_hh(language):
+def process_vacancy_hh(language, period, area):
     vacancies_found = 0
     total_salary = 0
     vacancies_processed = 0
@@ -19,19 +19,19 @@ def process_vacancy_hh(language):
     while page < pages:
         params = {
             'page': page,
-            'area': '1',
+            'area': area,
             'text': f'Программист {language}',
-            'period': '30'
+            'period': period
         }
         page = page + 1
         url = 'https://api.hh.ru/vacancies'
         response = requests.get(url, headers=headers, params=params)
         response.raise_for_status()
-        vacancys = response.json()
-        if vacancys.get('items'):
-            vacancies_found = vacancys['found']
-            pages = vacancys['pages']
-            for vacancy in vacancys['items']:
+        vacancis = response.json()
+        if vacancis.get('items'):
+            vacancies_found = vacancis['found']
+            pages = vacancis['pages']
+            for vacancy in vacancis['items']:
                 if vacancy['salary']:
                     predicted_salary = predict_rub_salary_for_hh(vacancy['salary'])
                     if predicted_salary:
@@ -59,7 +59,7 @@ def predict_rub_salary_for_hh(salary):
             return salary['to']*0.8
 
 
-def process_vacancy_sj(language, sj_token):
+def process_vacancy_sj(language, sj_token, town):
     vacancies_found = 0
     total_salary = 0
     vacancies_processed = 0
@@ -72,7 +72,7 @@ def process_vacancy_sj(language, sj_token):
     while True:
         params = {
             'page': page,
-            'town': 4,
+            'town': town,
             'keyword': f'Программист {language}'
         }
         url = "https://api.superjob.ru/2.0/vacancies/"
@@ -127,6 +127,9 @@ def make_table(languages_information, title):
 
 if __name__ == '__main__':
     load_dotenv()
+    town = os.getenv('TOWN')
+    area = os.getenv('AREA')
+    period = os.getenv('PERIOD')
     sj_token = os.getenv('SJ_TOKEN')
     languages = [
         'Python',
@@ -139,16 +142,16 @@ if __name__ == '__main__':
         'C',
         'Go'
     ]
-    sj_salarys = []
-    hh_salarys = []
+    sj_salaries = []
+    hh_salaries = []
 
     for language in languages:
         try:
-            hh_salarys.append(process_vacancy_hh(language))
-            sj_salarys.append(process_vacancy_sj(language, sj_token))
+            hh_salaries.append(process_vacancy_hh(language, period, area))
+            sj_salaries.append(process_vacancy_sj(language, sj_token, town))
         except requests.exceptions.HTTPError as error:
-            logging.warning('код сломался, иди чини')
-    sj_table = make_table(sj_salarys, 'SuperJob Moscow')
-    hh_table = make_table(hh_salarys, 'HeadHunter Moscow')
+            logging.warning(f'произошла ошибка при получении данных с HeadHunter или SuperJob {error}')
+    sj_table = make_table(sj_salaries, 'SuperJob Moscow')
+    hh_table = make_table(hh_salaries, 'HeadHunter Moscow')
     print(sj_table.table)
     print(hh_table.table)
