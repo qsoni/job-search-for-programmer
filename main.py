@@ -70,21 +70,18 @@ def process_vacancy_sj(language, sj_token, town):
         url = 'https://api.superjob.ru/2.0/vacancies/'
         response = requests.get(url, headers=headers, params=params)
         response.raise_for_status()
-        if response.json()['objects']:
-            vacancies_found = response.json()['total']
-            for vacancy in response.json()['objects']:
-                currency = vacancy['currency']
-                salary_from = vacancy['payment_from']
-                salary_to = vacancy['payment_to']
-                predicted_salary = predict_rub_salary(currency, salary_to, salary_from)
-                if predicted_salary:
-                    total_salary += predicted_salary
-                    vacancies_processed += 1
-                    average_salary = int(total_salary / vacancies_processed)
-            page = page + 1
-            if not response.json()['more']:
-                break
-        else:
+        vacancies_found = response.json()['total']
+        for vacancy in response.json()['objects']:
+            currency = vacancy['currency']
+            salary_from = vacancy['payment_from']
+            salary_to = vacancy['payment_to']
+            predicted_salary = predict_rub_salary(currency, salary_to, salary_from)
+            if predicted_salary:
+                total_salary += predicted_salary
+                vacancies_processed += 1
+                average_salary = int(total_salary / vacancies_processed)
+        page = page + 1
+        if not response.json()['more']:
             break
     vacancy_params = {
         'language': language,
