@@ -28,11 +28,11 @@ def process_vacancy_hh(language, period, area):
         url = 'https://api.hh.ru/vacancies'
         response = requests.get(url, headers=headers, params=params)
         response.raise_for_status()
-        vacancis = response.json()
-        if vacancis.get('items'):
-            vacancies_found = vacancis['found']
-            pages = vacancis['pages']
-            for vacancy in vacancis['items']:
+        vacancies = response.json()
+        if vacancies.get('items'):
+            vacancies_found = vacancies['found']
+            pages = vacancies['pages']
+            for vacancy in vacancies['items']:
                 salary = vacancy.get('salary')
                 if salary:
                     currency = vacancy.get('salary').get('currency')
@@ -70,8 +70,9 @@ def process_vacancy_sj(language, sj_token, town):
         url = 'https://api.superjob.ru/2.0/vacancies/'
         response = requests.get(url, headers=headers, params=params)
         response.raise_for_status()
-        vacancies_found = response.json()['total']
-        for vacancy in response.json()['objects']:
+        vacancies_page = response.json()
+        vacancies_found = vacancies_page['total']
+        for vacancy in vacancies_page['objects']:
             currency = vacancy['currency']
             salary_from = vacancy['payment_from']
             salary_to = vacancy['payment_to']
@@ -81,7 +82,7 @@ def process_vacancy_sj(language, sj_token, town):
                 vacancies_processed += 1
                 average_salary = int(total_salary / vacancies_processed)
         page = page + 1
-        if not response.json()['more']:
+        if not vacancies_page['more']:
             break
     vacancy_params = {
         'language': language,
