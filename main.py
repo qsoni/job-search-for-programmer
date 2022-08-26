@@ -8,6 +8,7 @@ from terminaltables import AsciiTable
 
 
 def process_vacancy_hh(language, period, area):
+    payments = []
     vacancies_found = 0
     total_salary = 0
     vacancies_processed = 0
@@ -40,9 +41,9 @@ def process_vacancy_hh(language, period, area):
                     salary_to = salary.get('to')
                     predicted_salary = predict_rub_salary(currency, salary_from, salary_to)
                     if predicted_salary:
-                        total_salary += predicted_salary
-                        vacancies_processed += 1
-                        average_salary = int(total_salary/vacancies_processed)
+                        payments.append(predicted_salary)
+    vacancies_processed = len(payments)
+    average_salary = int(sum(payments)/vacancies_processed)
     vacancy_params = {
         'language': language,
         'vacancies_found': vacancies_found,
@@ -52,6 +53,7 @@ def process_vacancy_hh(language, period, area):
     return vacancy_params
 
 def process_vacancy_sj(language, sj_token, town):
+    payments = []
     vacancies_found = 0
     total_salary = 0
     vacancies_processed = 0
@@ -78,12 +80,13 @@ def process_vacancy_sj(language, sj_token, town):
             salary_to = vacancy['payment_to']
             predicted_salary = predict_rub_salary(currency, salary_to, salary_from)
             if predicted_salary:
-                total_salary += predicted_salary
-                vacancies_processed += 1
-                average_salary = int(total_salary / vacancies_processed)
+                payments.append(predicted_salary)
         page = page + 1
         if not vacancies_page['more']:
             break
+    vacancies_processed = len(payments)
+    if vacancies_processed :
+        average_salary = int(sum(payments) / vacancies_processed)
     vacancy_params = {
         'language': language,
         'vacancies_found': vacancies_found,
@@ -136,6 +139,8 @@ if __name__ == '__main__':
     ]
     sj_salaries = []
     hh_salaries = []
+
+
 
     for language in languages:
         try:
