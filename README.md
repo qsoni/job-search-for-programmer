@@ -10,6 +10,8 @@
 Пример `.env` файла:
 ```
 SJ_TOKEN=dw13jhfgfdufimcjhbwofghgfhtrfhgay2dsw132ihd34wef
+
+SJ_TOKEN - это ваш SuperJob token 
 ```
 
 Рекомендуется использовать [vetrualenv/venv](https://pypi.org/project/python-dotenv/0.9.1/) для изоляции проекта.
