@@ -30,20 +30,22 @@ def process_vacancy_hh(language, period, area):
         response = requests.get(url, headers=headers, params=params)
         response.raise_for_status()
         vacancies_on_page = response.json()
-        if vacancies_on_page.get('items'):
-            vacancies_found = vacancies_on_page['found']
-            pages = vacancies_on_page['pages']
-            for vacancy in vacancies_on_page['items']:
-                salary = vacancy.get('salary')
-                if salary:
-                    currency = vacancy.get('salary').get('currency')
-                    salary_from = salary.get('from')
-                    salary_to = salary.get('to')
-                    predicted_salary = predict_rub_salary(currency, salary_from, salary_to)
-                    if predicted_salary:
-                        all_salaries.append(predicted_salary)
+        vacancies_found = vacancies_on_page['found']
+        pages = vacancies_on_page['pages']
+        for vacancy in vacancies_on_page.get('items'):
+            salary = vacancy.get('salary')
+            if salary:
+                currency = salary.get('currency')
+                salary_from = salary.get('from')
+                salary_to = salary.get('to')
+                predicted_salary = predict_rub_salary(currency, salary_from, salary_to)
+                if predicted_salary:
+                    all_salaries.append(predicted_salary)
     vacancies_processed = len(all_salaries)
-    average_salary = int(sum(all_salaries)/vacancies_processed)
+    if vacancies_processed :
+        average_salary = int(sum(all_salaries)/vacancies_processed)
+    else:
+        average_salary = 0
     vacancy_params = {
         'language': language,
         'vacancies_found': vacancies_found,
