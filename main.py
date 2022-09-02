@@ -8,7 +8,7 @@ from terminaltables import AsciiTable
 
 
 def process_vacancy_hh(language, period, area):
-    payments = []
+    all_salaries = []
     vacancies_found = 0
     total_salary = 0
     vacancies_processed = 0
@@ -29,11 +29,11 @@ def process_vacancy_hh(language, period, area):
         url = 'https://api.hh.ru/vacancies'
         response = requests.get(url, headers=headers, params=params)
         response.raise_for_status()
-        vacancies = response.json()
-        if vacancies.get('items'):
-            vacancies_found = vacancies['found']
-            pages = vacancies['pages']
-            for vacancy in vacancies['items']:
+        vacancies_on_page = response.json()
+        if vacancies_on_page.get('items'):
+            vacancies_found = vacancies_on_page['found']
+            pages = vacancies_on_page['pages']
+            for vacancy in vacancies_on_page['items']:
                 salary = vacancy.get('salary')
                 if salary:
                     currency = vacancy.get('salary').get('currency')
@@ -41,9 +41,9 @@ def process_vacancy_hh(language, period, area):
                     salary_to = salary.get('to')
                     predicted_salary = predict_rub_salary(currency, salary_from, salary_to)
                     if predicted_salary:
-                        payments.append(predicted_salary)
-    vacancies_processed = len(payments)
-    average_salary = int(sum(payments)/vacancies_processed)
+                        all_salaries.append(predicted_salary)
+    vacancies_processed = len(all_salaries)
+    average_salary = int(sum(all_salaries)/vacancies_processed)
     vacancy_params = {
         'language': language,
         'vacancies_found': vacancies_found,
@@ -53,7 +53,7 @@ def process_vacancy_hh(language, period, area):
     return vacancy_params
 
 def process_vacancy_sj(language, sj_token, town):
-    payments = []
+    all_salaries = []
     vacancies_found = 0
     total_salary = 0
     vacancies_processed = 0
@@ -80,13 +80,13 @@ def process_vacancy_sj(language, sj_token, town):
             salary_to = vacancy['payment_to']
             predicted_salary = predict_rub_salary(currency, salary_to, salary_from)
             if predicted_salary:
-                payments.append(predicted_salary)
+                all_salaries.append(predicted_salary)
         page = page + 1
         if not vacancies_page['more']:
             break
-    vacancies_processed = len(payments)
+    vacancies_processed = len(all_salaries)
     if vacancies_processed :
-        average_salary = int(sum(payments) / vacancies_processed)
+        average_salary = int(sum(all_salaries) / vacancies_processed)
     vacancy_params = {
         'language': language,
         'vacancies_found': vacancies_found,
@@ -97,13 +97,14 @@ def process_vacancy_sj(language, sj_token, town):
 
 
 def predict_rub_salary(currency, salary_to, salary_from ):
-    if currency == 'rub' or currency == 'RUR':
-        if salary_to and salary_from:
-            return (salary_to + salary_from)/2
-        elif salary_from:
-            return salary_from*1.2
-        elif salary_to:
-            return salary_to*0.8
+    if not (currency == 'rub' or currency == 'RUR'):
+        return None
+    if salary_to and salary_from:
+        return (salary_to + salary_from)/2
+    elif salary_from:
+        return salary_from*1.2
+    elif salary_to:
+        return salary_to*0.8
 
 
 def make_table(languages_information, title):
