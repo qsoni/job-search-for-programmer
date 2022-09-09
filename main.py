@@ -34,13 +34,14 @@ def process_vacancy_hh(language, period, area):
         pages = vacancies_on_page['pages']
         for vacancy in vacancies_on_page.get('items'):
             salary = vacancy.get('salary')
-            if salary:
-                currency = salary.get('currency')
-                salary_from = salary.get('from')
-                salary_to = salary.get('to')
-                predicted_salary = predict_rub_salary(currency, salary_from, salary_to)
-                if predicted_salary:
-                    all_salaries.append(predicted_salary)
+            if not salary:
+                continue
+            currency = salary.get('currency')
+            salary_from = salary.get('from')
+            salary_to = salary.get('to')
+            predicted_salary = predict_rub_salary(currency, salary_from, salary_to)
+            if predicted_salary:
+                all_salaries.append(predicted_salary)
     vacancies_processed = len(all_salaries)
     if vacancies_processed :
         average_salary = int(sum(all_salaries)/vacancies_processed)
