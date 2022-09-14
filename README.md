@@ -5,14 +5,19 @@
 ### Как установить
 Для того чтобы запустить программу, вам нужно будет получить свой токен 'SuperJob', это можно сделать на сайте [API SuperJob](https://api.superjob.ru), при регистрации приложения от вас потребуют указать сайт, введите любой, они не проверяют. 
 
-После получения токена нужно будет создать файл `.env`, в нём сделать переменную и положить в неё токен.
+После получения токена нужно будет создать файл `.env`, в нём сделать переменную и положить в неё токен. 
 
 Пример `.env` файла:
 ```
-SJ_TOKEN=dw13jhfgfdufimcjhbwofghgfhtrfhgay2dsw132ihd34wef
+SJ_TOKEN=dw13jhfgfdufimcjhbwofghgfhtrfhgay2dsw132ihd34wef #ваш SuperJob token
+PERIOD=30 #кол-во дней, за которое получаем вакансии 
+AREA=1 #id города поиска для HeadHunter 
+TOWN=4 #id/название города поска для SuperJob
 
-SJ_TOKEN - это ваш SuperJob token 
 ```
+id городов для HeadHunter - [здесь](https://api.hh.ru/areas).
+
+id городов для SuperJob - [здесь](https://api.superjob.ru/2.0/towns).
 
 Рекомендуется использовать [vetrualenv/venv](https://pypi.org/project/python-dotenv/0.9.1/) для изоляции проекта.
 
